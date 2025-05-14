@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Download, FileText, FileExcel } from "lucide-react";
+import { Download, FileText, FileSpreadsheet } from "lucide-react";
 import { 
   parseTxtToArray, 
   convertArrayToXlsx, 
@@ -159,7 +159,7 @@ const Index = () => {
               TXT para XLSX
             </TabsTrigger>
             <TabsTrigger value="xlsx-to-txt" className="text-lg py-3">
-              <FileExcel className="mr-2 h-4 w-4" />
+              <FileSpreadsheet className="mr-2 h-4 w-4" />
               XLSX para TXT
             </TabsTrigger>
           </TabsList>
