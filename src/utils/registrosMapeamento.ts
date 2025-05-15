@@ -11,32 +11,57 @@ export const registrosMapeamento: RegistroMapeamento[] = [
   {
     codigo: "0000",
     descricao: "Abertura do Arquivo Digital e Identificação da entidade",
-    cabecalho: ["REG", "COD_VER", "COD_FIN", "DT_INI", "DT_FIN", "NOME", "CNPJ", "CPF", "UF", "IE", "COD_MUN", "IM", "SUFRAMA", "IND_PERFIL", "IND_ATIV"]
+    cabecalho: ["REG", "CNPJ", "COD_FIN", "COD_MUN", "COD_VER", "CPF", "DT_FIN", "DT_INI", "IE", "NOME", "UF"]
+  },
+  {
+    codigo: "0001",
+    descricao: "Abertura do Bloco 0",
+    cabecalho: ["REG", "IND_MOV"]
   },
   {
     codigo: "0005",
     descricao: "Dados Complementares da entidade",
-    cabecalho: ["REG", "FANTASIA", "CEP", "END", "NUM", "COMPL", "BAIRRO", "FONE", "FAX", "EMAIL"]
+    cabecalho: ["REG", "BAIRRO", "CEP", "COMPL", "EMAIL", "END", "FANTASIA", "FAX", "FONE", "NUM"]
+  },
+  {
+    codigo: "0015",
+    descricao: "Dados do Contribuinte Substituto",
+    cabecalho: ["REG", "IE_ST", "UF_ST"]
   },
   {
     codigo: "0100",
     descricao: "Dados do Contabilista",
-    cabecalho: ["REG", "NOME", "CPF", "CRC", "CNPJ", "CEP", "END", "NUM", "COMPL", "BAIRRO", "FONE", "FAX", "EMAIL", "COD_MUN"]
+    cabecalho: ["REG", "BAIRRO", "CEP", "CNPJ", "COD_MU", "COMPL", "CPF", "CRC", "EMAIL", "END", "FAX", "FONE", "NOME", "NUM"]
   },
   {
     codigo: "0150",
     descricao: "Tabela de Cadastro do Participante",
-    cabecalho: ["REG", "COD_PART", "NOME", "COD_PAIS", "CNPJ", "CPF", "IE", "COD_MUN", "SUFRAMA", "END", "NUM", "COMPL", "BAIRRO"]
+    cabecalho: ["REG", "BAIRRO", "CNPJ", "COD_MUN", "COD_PAIS", "COD_PART", "COMPL", "CPF", "END", "IE", "NOME", "NUM", "SUFRAMA"]
+  },
+  {
+    codigo: "0175",
+    descricao: "Alteração da Tabela de Cadastro de Participante",
+    cabecalho: ["REG", "CONT_ANT", "DT_ALT", "NR_CAMPO"]
   },
   {
     codigo: "0190",
     descricao: "Identificação das Unidades de Medida",
-    cabecalho: ["REG", "UNID", "DESCR"]
+    cabecalho: ["REG", "DESCR", "UNID"]
   },
   {
     codigo: "0200",
     descricao: "Tabela de Identificação do Item",
     cabecalho: ["REG", "COD_ITEM", "DESCR_ITEM", "COD_BARRA", "COD_ANT_ITEM", "UNID_INV", "TIPO_ITEM", "COD_NCM", "EX_IPI", "COD_GEN", "COD_LST", "ALIQ_ICMS", "CEST"]
+  },
+  {
+    codigo: "0205",
+    descricao: "Alteração do Item",
+    cabecalho: ["REG", "COD_ANT_ITEM", "DESCR_ANT_ITEM", "DT_FIM", "DT_INI"]
+  },
+  {
+    codigo: "0206",
+    descricao: "Código de produto conforme Tabela ANP",
+    cabecalho: ["REG", "COD_COMB"]
   },
   {
     codigo: "0400",
@@ -49,9 +74,64 @@ export const registrosMapeamento: RegistroMapeamento[] = [
     cabecalho: ["REG", "COD_INF", "TXT"]
   },
   {
+    codigo: "0460",
+    descricao: "Tabela de Observações do Lançamento Fiscal",
+    cabecalho: ["REG", "COD_OBS", "TXT"]
+  },
+  {
+    codigo: "0500",
+    descricao: "Plano de Contas Contábeis",
+    cabecalho: ["REG", "COD_CTA", "NOME_CTA", "DT_ALT", "COD_NAT_CC", "IND_CTA"]
+  },
+  {
+    codigo: "0600",
+    descricao: "Centro de Custos",
+    cabecalho: ["REG", "COD_CCUS", "CCUS", "DT_ALT"]
+  },
+  {
+    codigo: "0990",
+    descricao: "Encerramento do Bloco 0",
+    cabecalho: ["REG", "QTD_LIN_0"]
+  },
+  {
     codigo: "B001",
     descricao: "Abertura do Bloco B",
     cabecalho: ["REG", "IND_DAD"]
+  },
+  {
+    codigo: "B020",
+    descricao: "Nota Fiscal (código 01), Nota Fiscal de Serviços (código 03), Nota Fiscal de Serviços Avulsa (código 3B)",
+    cabecalho: ["REG", "CHV_NFE", "COD_MOD", "COD_MUN_SE", "COD_PART", "COD_SIT", "DT_DOC", "IND_EMIT", "IND_OPER", "NUM_DOC", "SER", "VL_BC_ISS", "VL_CONT", "VL_DED_BC", "VL_ISNT_ISS", "VL_MAT_TER", "VL_SUB"]
+  },
+  {
+    codigo: "B420",
+    descricao: "Totalização dos Valores de ISS por Código de Serviço",
+    cabecalho: ["REG", "ALIQ_ISS", "COD_SERV", "VL_BC_ISS", "VL_CONT", "VL_ISNT_ISS", "VL_ISS"]
+  },
+  {
+    codigo: "B440",
+    descricao: "Totalização dos Valores Retidos",
+    cabecalho: ["REG", "COD_PART", "IND_OPER"]
+  },
+  {
+    codigo: "B990",
+    descricao: "Encerramento do Bloco B",
+    cabecalho: ["REG", "QTD_LIN_B"]
+  },
+  {
+    codigo: "C001",
+    descricao: "Abertura do Bloco C",
+    cabecalho: ["REG", "IND_MOV"]
+  },
+  {
+    codigo: "C100",
+    descricao: "Nota Fiscal (código 01), Nota Fiscal Avulsa (código 1B), Nota Fiscal de Produtor (código 04), NF-e (código 55) e NFC-e (código 65)",
+    cabecalho: ["REG", "IND_OPER", "IND_EMIT", "COD_PART", "COD_MOD", "COD_SIT", "SER", "NUM_DOC", "CHV_NFE", "DT_DOC", "DT_E_S", "VL_DOC", "IND_PGTO", "VL_DESC", "VL_ABAT_NT", "VL_MERC", "IND_FRT", "VL_FRT", "VL_SEG", "VL_OUT_DA", "VL_BC_ICMS", "VL_ICMS", "VL_BC_ICMS_ST", "VL_ICMS_ST", "VL_IPI", "VL_PIS", "VL_COFINS"]
+  },
+  {
+    codigo: "C101",
+    descricao: "Informação complementar dos documentos fiscais quando das operações interestaduais destinadas a consumidor final não contribuinte EC 87/15",
+    cabecalho: ["REG", "VL_FCP_UF_DEST", "VL_ICMS_UF_DEST"]
   },
   {
     codigo: "C110",
@@ -66,7 +146,12 @@ export const registrosMapeamento: RegistroMapeamento[] = [
   {
     codigo: "C190",
     descricao: "Registro Analítico do Documento",
-    cabecalho: ["REG", "CST_ICMS", "CFOP", "ALIQ_ICMS", "VL_OPR", "VL_BC_ICMS", "VL_ICMS", "VL_BC_ICMS_ST", "VL_ICMS_ST", "VL_RED_BC", "VL_IPI", "COD_OBS"]
+    cabecalho: ["REG", "ALIQ_ICMS", "CFOP", "CST_ICMS", "VL_BC_ICMS", "VL_ICMS", "VL_OPR"]
+  },
+  {
+    codigo: "C500",
+    descricao: "Nota Fiscal/Conta de Energia Elétrica (código 06), Nota Fiscal/Conta de fornecimento dágua canalizada (código 29) e Nota Fiscal/Consumo Fornecimento de Gás (código 28)",
+    cabecalho: ["REG", "IND_OPER", "IND_EMIT", "COD_PART", "COD_MOD", "COD_SIT", "SER", "SUB", "NUM_DOC", "DT_DOC", "DT_E_S", "VL_DOC", "VL_DESC", "VL_FORN", "VL_SERV_NT", "VL_TERC", "VL_DA", "VL_BC_ICMS", "VL_ICMS", "VL_BC_ICMS_ST", "VL_ICMS_ST", "COD_INF", "VL_PIS", "VL_COFINS", "TP_LIGACAO", "COD_GRUPO_TENSAO"]
   },
   {
     codigo: "C850",
@@ -79,6 +164,26 @@ export const registrosMapeamento: RegistroMapeamento[] = [
     cabecalho: ["REG", "IND_MOV"]
   },
   {
+    codigo: "D100",
+    descricao: "Nota Fiscal de Serviço de Transporte (código 07) e Conhecimentos de Transporte Rodoviário de Cargas (código 08), Conhecimento de Transporte de Cargas Avulso (código 8B), Aquaviário de Cargas (código 09), Aéreo (código 10), Ferroviário de Cargas (código 11), Multimodal de Cargas (código 26), Nota Fiscal de Transporte Ferroviário de Cargas (código 27), Conhecimento de Transporte Eletrônico – CT-e (código 57), Bilhete de Passagem Eletrônico - BP-e (código 63) e Conhecimento de Transporte Eletrônico para Outros Serviços - CT-e OS (código 67)",
+    cabecalho: ["REG", "IND_OPER", "IND_EMIT", "COD_PART", "COD_MOD", "COD_SIT", "SER", "SUB", "NUM_DOC", "CHV_CTE", "DT_DOC", "DT_A_P", "TP_CT-e", "CHV_CTE_REF", "VL_DOC", "VL_DESC", "IND_FRT", "VL_SERV", "VL_BC_ICMS", "VL_ICMS", "VL_NT", "COD_INF", "COD_CTA", "COD_MUN_ORIG", "COD_MUN_DEST"]
+  },
+  {
+    codigo: "D190",
+    descricao: "Registro Analítico dos Documentos de Transporte (Código 07, 08, 8B, 09, 10, 11, 26, 27, 57, 63 e 67)",
+    cabecalho: ["REG", "ALIQ_ICMS", "CFOP", "CST_ICMS", "VL_BC_ICMS", "VL_ICMS", "VL_OPR"]
+  },
+  {
+    codigo: "E001",
+    descricao: "Abertura do Bloco E",
+    cabecalho: ["REG", "IND_MOV"]
+  },
+  {
+    codigo: "E100",
+    descricao: "Período da Apuração do ICMS",
+    cabecalho: ["REG", "DT_INI", "DT_FIN"]
+  },
+  {
     codigo: "E110",
     descricao: "Apuração do ICMS - Operações Próprias",
     cabecalho: ["REG", "VL_TOT_DEBITOS", "VL_AJ_DEBITOS", "VL_TOT_AJ_DEBITOS", "VL_ESTORNOS_CRED", "VL_TOT_CREDITOS", "VL_AJ_CREDITOS", "VL_TOT_AJ_CREDITOS", "VL_ESTORNOS_DEB", "VL_SLD_CREDOR_ANT", "VL_SLD_APURADO", "VL_TOT_DED", "VL_ICMS_RECOLHER", "VL_SLD_CREDOR_TRANSPORTAR", "DEB_ESP"]
@@ -89,9 +194,19 @@ export const registrosMapeamento: RegistroMapeamento[] = [
     cabecalho: ["REG", "IND_MOV"]
   },
   {
+    codigo: "H001",
+    descricao: "Abertura do Bloco H",
+    cabecalho: ["REG", "IND_MOV"]
+  },
+  {
     codigo: "H005",
     descricao: "Totais do Inventário",
     cabecalho: ["REG", "DT_INV", "VL_INV", "MOT_INV"]
+  },
+  {
+    codigo: "H010",
+    descricao: "Inventário",
+    cabecalho: ["REG", "COD_ITEM", "UNID", "QTD", "VL_UNIT", "VL_ITEM", "IND_PROP", "COD_PART", "TXT_COMPL", "COD_CTA", "VL_ITEM_IR"]
   },
   {
     codigo: "K001",
@@ -99,9 +214,44 @@ export const registrosMapeamento: RegistroMapeamento[] = [
     cabecalho: ["REG", "IND_MOV"]
   },
   {
+    codigo: "K100",
+    descricao: "Período de Apuração do ICMS/IPI",
+    cabecalho: ["REG", "DT_INI", "DT_FIN"]
+  },
+  {
+    codigo: "K200",
+    descricao: "Estoque Escriturado",
+    cabecalho: ["REG", "DT_EST", "COD_ITEM", "QTD", "IND_EST"]
+  },
+  {
+    codigo: "1001",
+    descricao: "Abertura do Bloco 1",
+    cabecalho: ["REG", "IND_MOV"]
+  },
+  {
     codigo: "1010",
     descricao: "Obrigatoriedade de registros do Bloco 1",
     cabecalho: ["REG", "IND_EXP", "IND_CCRF", "IND_COMB", "IND_USINA", "IND_VA", "IND_EE", "IND_CART", "IND_FORM", "IND_AER", "IND_GIAF1", "IND_GIAF3", "IND_GIAF4", "IND_REST_RESSARC_COMPL_ICMS"]
+  },
+  {
+    codigo: "9001",
+    descricao: "Abertura do Bloco 9",
+    cabecalho: ["REG", "IND_MOV"]
+  },
+  {
+    codigo: "9900",
+    descricao: "Registros do Arquivo",
+    cabecalho: ["REG", "REG_BLC", "QTD_REG_BLC"]
+  },
+  {
+    codigo: "9990",
+    descricao: "Encerramento do Bloco 9",
+    cabecalho: ["REG", "QTD_LIN_9"]
+  },
+  {
+    codigo: "9999",
+    descricao: "Encerramento do Arquivo Digital",
+    cabecalho: ["REG", "QTD_LIN"]
   }
 ];
 
@@ -137,3 +287,4 @@ export const obterIconePorCodigo = (codigo: string): string => {
   // Retornar ícone padrão se não encontrar um específico
   return "file-text";
 };
+
