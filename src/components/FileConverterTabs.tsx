@@ -1,12 +1,8 @@
 
 import { useState } from "react";
-import FileUploader from "@/components/FileUploader";
-import DataTable from "@/components/DataTable";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Download, FileText, FileSpreadsheet } from "lucide-react";
+import { FileText, FileSpreadsheet, FileDiff } from "lucide-react";
 import { 
   parseTxtToArray, 
   convertArrayToXlsx, 
@@ -16,13 +12,18 @@ import {
 } from "@/utils/fileProcessing";
 import { TxtToXlsxTab } from "@/components/TxtToXlsxTab";
 import { XlsxToTxtTab } from "@/components/XlsxToTxtTab";
+import CompareTxtTab from "@/components/CompareTxtTab";
 
 const FileConverterTabs = () => {
   const { toast } = useToast();
   const [txtFile, setTxtFile] = useState<File | null>(null);
   const [xlsxFile, setXlsxFile] = useState<File | null>(null);
   const [parsedData, setParsedData] = useState<string[][]>([]);
-  const [isLoading, setIsLoading] = useState<{txt: boolean, xlsx: boolean}>({txt: false, xlsx: false});
+  const [isLoading, setIsLoading] = useState<{txt: boolean, xlsx: boolean, compare: boolean}>({
+    txt: false, 
+    xlsx: false,
+    compare: false
+  });
 
   // Handle TXT to XLSX conversion
   const handleTxtToXlsx = async () => {
@@ -158,7 +159,7 @@ const FileConverterTabs = () => {
 
   return (
     <Tabs defaultValue="txt-to-xlsx" className="w-full">
-      <TabsList className="grid w-full grid-cols-2 mb-8">
+      <TabsList className="grid w-full grid-cols-3 mb-8">
         <TabsTrigger value="txt-to-xlsx" className="text-lg py-3">
           <FileText className="mr-2 h-4 w-4" />
           TXT para XLSX
@@ -166,6 +167,10 @@ const FileConverterTabs = () => {
         <TabsTrigger value="xlsx-to-txt" className="text-lg py-3">
           <FileSpreadsheet className="mr-2 h-4 w-4" />
           XLSX para TXT
+        </TabsTrigger>
+        <TabsTrigger value="compare-txt" className="text-lg py-3">
+          <FileDiff className="mr-2 h-4 w-4" />
+          Comparar TXT
         </TabsTrigger>
       </TabsList>
       
@@ -186,6 +191,13 @@ const FileConverterTabs = () => {
           setXlsxFile={setXlsxFile}
           isLoading={isLoading.xlsx}
           onConvert={handleXlsxToTxt}
+        />
+      </TabsContent>
+      
+      <TabsContent value="compare-txt">
+        <CompareTxtTab 
+          isLoading={isLoading.compare}
+          setIsLoading={(loading) => setIsLoading(prev => ({...prev, compare: loading}))}
         />
       </TabsContent>
     </Tabs>

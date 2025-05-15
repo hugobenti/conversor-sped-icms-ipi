@@ -1,10 +1,9 @@
 
 import FileUploader from "@/components/FileUploader";
-import DataTable from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Download, RefreshCw } from "lucide-react";
+import { Download, RefreshCw, FileText, Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { agruparPorRegistro } from "@/utils/fileProcessing";
 import { useState, useEffect } from "react";
@@ -23,6 +22,7 @@ interface ResumoRegistro {
   codigo: string;
   descricao: string;
   contagem: number;
+  encontrado: boolean;
 }
 
 export const TxtToXlsxTab = ({
@@ -46,7 +46,8 @@ export const TxtToXlsxTab = ({
         return {
           codigo,
           descricao: mapeamento?.descricao || 'Registro desconhecido',
-          contagem: linhas.length
+          contagem: linhas.length,
+          encontrado: !!mapeamento
         };
       });
       
@@ -107,38 +108,14 @@ export const TxtToXlsxTab = ({
               </>
             )}
           </Button>
-          
-          {resumoRegistros.length > 0 && (
-            <div className="mt-6">
-              <h3 className="text-sm font-medium mb-2">Resumo dos registros encontrados:</h3>
-              <div className="max-h-[200px] overflow-y-auto space-y-1">
-                {resumoRegistros.map((item) => (
-                  <div key={item.codigo} className="text-xs flex justify-between items-center">
-                    <Badge variant="outline" className="py-0.5">
-                      {item.codigo}
-                    </Badge>
-                    <span className="text-muted-foreground truncate max-w-[60%]" title={item.descricao}>
-                      {item.descricao}
-                    </span>
-                    <Badge variant="secondary" className="py-0.5">
-                      {item.contagem}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-2 text-xs text-muted-foreground">
-                Total: {resumoRegistros.length} tipos de registro
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
       
       <Card className="col-span-1 lg:col-span-2">
         <CardHeader>
-          <CardTitle>Pré-visualização dos dados</CardTitle>
+          <CardTitle>Resumo dos registros encontrados</CardTitle>
           <CardDescription>
-            Os dados do arquivo TXT serão exibidos aqui após o carregamento.
+            Listagem dos tipos de registro no arquivo carregado.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -147,8 +124,58 @@ export const TxtToXlsxTab = ({
               <RefreshCw className="h-12 w-12 text-muted-foreground animate-spin" />
               <p className="text-muted-foreground">Carregando dados...</p>
             </div>
+          ) : resumoRegistros.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+              {resumoRegistros.map((item) => (
+                <div 
+                  key={item.codigo} 
+                  className={`p-2 rounded-md border flex items-center justify-between ${!item.encontrado ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}
+                >
+                  <div className="flex items-center gap-2">
+                    {item.encontrado ? (
+                      <Check className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <X className="h-4 w-4 text-red-500" />
+                    )}
+                    <div>
+                      <div className="font-medium">{item.codigo}</div>
+                      <div className="text-xs text-muted-foreground truncate max-w-[180px]" title={item.descricao}>
+                        {item.descricao}
+                      </div>
+                    </div>
+                  </div>
+                  <Badge variant={item.encontrado ? "secondary" : "destructive"}>
+                    {item.contagem}
+                  </Badge>
+                </div>
+              ))}
+            </div>
           ) : (
-            <DataTable data={parsedData} />
+            <div className="text-center py-8 text-gray-500">
+              <FileText className="h-12 w-12 mx-auto text-gray-400 mb-2" />
+              <p>Nenhum registro para exibir. Faça o upload de um arquivo para visualizar o resumo.</p>
+            </div>
+          )}
+          
+          {resumoRegistros.length > 0 && (
+            <div className="mt-4 p-4 border border-gray-200 rounded-md bg-gray-50">
+              <div className="flex justify-between items-center">
+                <div>
+                  <span className="font-medium">Total de tipos de registro: </span>
+                  <span>{resumoRegistros.length}</span>
+                </div>
+                <div>
+                  <span className="font-medium">Registros não mapeados: </span>
+                  <span className={`${resumoRegistros.filter(r => !r.encontrado).length > 0 ? 'text-red-500 font-bold' : ''}`}>
+                    {resumoRegistros.filter(r => !r.encontrado).length}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-medium">Total de linhas: </span>
+                  <span>{resumoRegistros.reduce((acc, r) => acc + r.contagem, 0)}</span>
+                </div>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>
