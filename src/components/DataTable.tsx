@@ -1,12 +1,10 @@
-
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { 
-  FileText, Zero, Five, 
-  One00, One50, One90, Two00, Four00, Four50,
-  B001, C110, C170, C190, C850, D001, E110,
-  G001, H005, K001, One010
+  FileText, File, FileSpreadsheet, FileJson, FilePieChart, FileBarChart, 
+  FileBox, FileCode, FileDigit, FileKey, FileLineChart, FileSearch, 
+  FileStack, FileSymlink, FileType, FileUp, FileWarning, FileX, Folder
 } from "lucide-react";
 import { obterMapeamentoPorCodigo, obterIconePorCodigo } from "@/utils/registrosMapeamento";
 
@@ -21,25 +19,25 @@ const RegistroIcon = ({ codigo }: { codigo: string }) => {
   
   // Map dos componentes de ícones disponíveis
   const icones: Record<string, React.ReactNode> = {
-    "0": <Zero className="h-4 w-4" />,
-    "5": <Five className="h-4 w-4" />,
-    "100": <One00 className="h-4 w-4" />,
-    "150": <One50 className="h-4 w-4" />,
-    "190": <One90 className="h-4 w-4" />,
-    "200": <Two00 className="h-4 w-4" />,
-    "400": <Four00 className="h-4 w-4" />,
-    "450": <Four50 className="h-4 w-4" />,
-    "B001": <B001 className="h-4 w-4" />,
-    "C110": <C110 className="h-4 w-4" />,
-    "C170": <C170 className="h-4 w-4" />,
-    "C190": <C190 className="h-4 w-4" />,
-    "C850": <C850 className="h-4 w-4" />,
-    "D001": <D001 className="h-4 w-4" />,
-    "E110": <E110 className="h-4 w-4" />,
-    "G001": <G001 className="h-4 w-4" />,
-    "H005": <H005 className="h-4 w-4" />,
-    "K001": <K001 className="h-4 w-4" />,
-    "1010": <One010 className="h-4 w-4" />
+    "0": <FileDigit className="h-4 w-4" />,
+    "5": <FileDigit className="h-4 w-4" />,
+    "100": <FileDigit className="h-4 w-4" />,
+    "150": <FileDigit className="h-4 w-4" />,
+    "190": <FileDigit className="h-4 w-4" />,
+    "200": <FileDigit className="h-4 w-4" />,
+    "400": <FileDigit className="h-4 w-4" />,
+    "450": <FileDigit className="h-4 w-4" />,
+    "B001": <FileCode className="h-4 w-4" />,
+    "C110": <FileSpreadsheet className="h-4 w-4" />,
+    "C170": <FileSpreadsheet className="h-4 w-4" />,
+    "C190": <FileSpreadsheet className="h-4 w-4" />,
+    "C850": <FileSpreadsheet className="h-4 w-4" />,
+    "D001": <FileBarChart className="h-4 w-4" />,
+    "E110": <FilePieChart className="h-4 w-4" />,
+    "G001": <FileJson className="h-4 w-4" />,
+    "H005": <FileLineChart className="h-4 w-4" />,
+    "K001": <FileKey className="h-4 w-4" />,
+    "1010": <FileSearch className="h-4 w-4" />
   };
   
   // Retorna o ícone ou o ícone padrão
