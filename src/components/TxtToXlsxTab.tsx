@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Download, RefreshCw } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { agruparPorRegistro } from "@/utils/fileProcessing";
+import { useState, useEffect } from "react";
+import { obterMapeamentoPorCodigo } from "@/utils/registrosMapeamento";
 
 interface TxtToXlsxTabProps {
   txtFile: File | null;
@@ -15,6 +19,12 @@ interface TxtToXlsxTabProps {
   onConvert: () => void;
 }
 
+interface ResumoRegistro {
+  codigo: string;
+  descricao: string;
+  contagem: number;
+}
+
 export const TxtToXlsxTab = ({
   txtFile,
   setTxtFile,
@@ -23,13 +33,39 @@ export const TxtToXlsxTab = ({
   onFileSelect,
   onConvert
 }: TxtToXlsxTabProps) => {
+  const [resumoRegistros, setResumoRegistros] = useState<ResumoRegistro[]>([]);
+
+  // Atualizar o resumo de registros quando os dados mudam
+  useEffect(() => {
+    if (parsedData.length > 0) {
+      const grupos = agruparPorRegistro(parsedData);
+      
+      const resumo: ResumoRegistro[] = Object.entries(grupos).map(([codigo, linhas]) => {
+        const mapeamento = obterMapeamentoPorCodigo(codigo);
+        
+        return {
+          codigo,
+          descricao: mapeamento?.descricao || 'Registro desconhecido',
+          contagem: linhas.length
+        };
+      });
+      
+      // Ordenar por código para exibição
+      resumo.sort((a, b) => a.codigo.localeCompare(b.codigo));
+      
+      setResumoRegistros(resumo);
+    } else {
+      setResumoRegistros([]);
+    }
+  }, [parsedData]);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <Card className="col-span-1">
         <CardHeader>
           <CardTitle>Converter TXT para XLSX</CardTitle>
           <CardDescription>
-            Carregue seu arquivo EFD ICMS IPI em formato TXT para convertê-lo em planilha Excel.
+            Carregue seu arquivo EFD ICMS IPI em formato TXT para convertê-lo em planilha Excel com múltiplas abas.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -71,6 +107,30 @@ export const TxtToXlsxTab = ({
               </>
             )}
           </Button>
+          
+          {resumoRegistros.length > 0 && (
+            <div className="mt-6">
+              <h3 className="text-sm font-medium mb-2">Resumo dos registros encontrados:</h3>
+              <div className="max-h-[200px] overflow-y-auto space-y-1">
+                {resumoRegistros.map((item) => (
+                  <div key={item.codigo} className="text-xs flex justify-between items-center">
+                    <Badge variant="outline" className="py-0.5">
+                      {item.codigo}
+                    </Badge>
+                    <span className="text-muted-foreground truncate max-w-[60%]" title={item.descricao}>
+                      {item.descricao}
+                    </span>
+                    <Badge variant="secondary" className="py-0.5">
+                      {item.contagem}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-2 text-xs text-muted-foreground">
+                Total: {resumoRegistros.length} tipos de registro
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
       

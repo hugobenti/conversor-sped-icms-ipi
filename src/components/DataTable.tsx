@@ -2,11 +2,49 @@
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { 
+  FileText, Zero, Five, 
+  One00, One50, One90, Two00, Four00, Four50,
+  B001, C110, C170, C190, C850, D001, E110,
+  G001, H005, K001, One010
+} from "lucide-react";
+import { obterMapeamentoPorCodigo, obterIconePorCodigo } from "@/utils/registrosMapeamento";
 
 interface DataTableProps {
   data: string[][];
   headers?: string[];
 }
+
+// Componente para renderizar o ícone com base no código
+const RegistroIcon = ({ codigo }: { codigo: string }) => {
+  const iconName = obterIconePorCodigo(codigo);
+  
+  // Map dos componentes de ícones disponíveis
+  const icones: Record<string, React.ReactNode> = {
+    "0": <Zero className="h-4 w-4" />,
+    "5": <Five className="h-4 w-4" />,
+    "100": <One00 className="h-4 w-4" />,
+    "150": <One50 className="h-4 w-4" />,
+    "190": <One90 className="h-4 w-4" />,
+    "200": <Two00 className="h-4 w-4" />,
+    "400": <Four00 className="h-4 w-4" />,
+    "450": <Four50 className="h-4 w-4" />,
+    "B001": <B001 className="h-4 w-4" />,
+    "C110": <C110 className="h-4 w-4" />,
+    "C170": <C170 className="h-4 w-4" />,
+    "C190": <C190 className="h-4 w-4" />,
+    "C850": <C850 className="h-4 w-4" />,
+    "D001": <D001 className="h-4 w-4" />,
+    "E110": <E110 className="h-4 w-4" />,
+    "G001": <G001 className="h-4 w-4" />,
+    "H005": <H005 className="h-4 w-4" />,
+    "K001": <K001 className="h-4 w-4" />,
+    "1010": <One010 className="h-4 w-4" />
+  };
+  
+  // Retorna o ícone ou o ícone padrão
+  return icones[iconName] || <FileText className="h-4 w-4" />;
+};
 
 const DataTable = ({ data, headers }: DataTableProps) => {
   // If we have no data, display a message
@@ -17,26 +55,6 @@ const DataTable = ({ data, headers }: DataTableProps) => {
       </div>
     );
   }
-
-  // Map register codes to their descriptions
-  const getRegisterTypeDescription = (code: string): string => {
-    const registerTypes: Record<string, string> = {
-      "0000": "Abertura do Arquivo",
-      "0001": "Abertura do Bloco 0",
-      "0005": "Dados Complementares da Entidade",
-      "0100": "Dados do Contabilista",
-      "0150": "Tabela de Cadastro do Participante",
-      "0190": "Identificação das Unidades de Medida",
-      "0200": "Tabela de Identificação do Item",
-      "0220": "Fatores de Conversão de Unidades",
-      "C100": "Nota Fiscal (Modelo 1, 1A, 55 e 65)",
-      "C170": "Itens da Nota Fiscal",
-      "C190": "Registro Analítico da Nota Fiscal",
-      // Add more register types as needed
-    };
-
-    return registerTypes[code] || code;
-  };
 
   // Get the first field from each row (register type)
   const registerTypes = data.map(row => row[0] || "");
@@ -65,8 +83,12 @@ const DataTable = ({ data, headers }: DataTableProps) => {
                 {row.map((cell, cellIndex) => (
                   <TableCell key={cellIndex}>
                     {cellIndex === 0 ? (
-                      <Badge className="bg-fiscal-blue">
-                        {cell} - {getRegisterTypeDescription(cell)}
+                      <Badge className="bg-fiscal-blue flex items-center gap-1">
+                        <RegistroIcon codigo={cell} />
+                        {cell}
+                        {obterMapeamentoPorCodigo(cell) && 
+                          <span className="hidden sm:inline"> - {obterMapeamentoPorCodigo(cell)?.descricao}</span>
+                        }
                       </Badge>
                     ) : (
                       cell || "-"
