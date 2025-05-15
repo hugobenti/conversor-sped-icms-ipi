@@ -2,7 +2,8 @@
 import FileUploader from "@/components/FileUploader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Download, RefreshCw } from "lucide-react";
 
 interface XlsxToTxtTabProps {
   xlsxFile: File | null;
@@ -34,13 +35,26 @@ export const XlsxToTxtTab = ({
           className="mb-6"
         />
         
+        {isLoading && (
+          <div className="mb-4 space-y-2">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm text-muted-foreground">Processando...</span>
+              <span className="text-sm font-medium">Aguarde</span>
+            </div>
+            <Progress value={75} className="h-2" />
+          </div>
+        )}
+        
         <Button 
           onClick={onConvert} 
           disabled={!xlsxFile || isLoading} 
           className="w-full"
         >
           {isLoading ? (
-            "Processando..."
+            <>
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              Processando...
+            </>
           ) : (
             <>
               <Download className="mr-2 h-4 w-4" />

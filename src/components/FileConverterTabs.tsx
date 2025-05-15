@@ -36,6 +36,10 @@ const FileConverterTabs = () => {
     }
 
     setIsLoading(prev => ({...prev, txt: true}));
+    toast({
+      title: "Processando arquivo",
+      description: "Seu arquivo está sendo convertido, aguarde um momento."
+    });
     
     try {
       // Read the TXT file
@@ -56,13 +60,13 @@ const FileConverterTabs = () => {
       
       toast({
         title: "Conversão concluída",
-        description: "Arquivo XLSX gerado com sucesso!",
+        description: "Arquivo XLSX gerado com sucesso! O download deve começar automaticamente.",
       });
     } catch (error) {
       console.error("Error converting TXT to XLSX:", error);
       toast({
         title: "Erro na conversão",
-        description: "Ocorreu um erro ao converter o arquivo. Verifique o formato.",
+        description: "Ocorreu um erro ao converter o arquivo. Verifique se o formato é válido.",
         variant: "destructive"
       });
     } finally {
@@ -82,6 +86,10 @@ const FileConverterTabs = () => {
     }
 
     setIsLoading(prev => ({...prev, xlsx: true}));
+    toast({
+      title: "Processando arquivo",
+      description: "Seu arquivo está sendo convertido, aguarde um momento."
+    });
     
     try {
       // Parse XLSX to array
@@ -98,13 +106,13 @@ const FileConverterTabs = () => {
       
       toast({
         title: "Conversão concluída",
-        description: "Arquivo TXT gerado com sucesso!",
+        description: "Arquivo TXT gerado com sucesso! O download deve começar automaticamente.",
       });
     } catch (error) {
       console.error("Error converting XLSX to TXT:", error);
       toast({
         title: "Erro na conversão",
-        description: "Ocorreu um erro ao converter o arquivo. Verifique o formato.",
+        description: "Ocorreu um erro ao converter o arquivo. Verifique se o formato é válido.",
         variant: "destructive"
       });
     } finally {
@@ -125,9 +133,15 @@ const FileConverterTabs = () => {
   // Handler for previewing TXT file
   const handlePreviewTxtFile = async (file: File) => {
     try {
+      toast({
+        title: "Carregando arquivo",
+        description: "Lendo dados do arquivo, por favor aguarde...",
+      });
+      
       const text = await readFileAsText(file);
       const data = parseTxtToArray(text);
       setParsedData(data);
+      
       toast({
         title: "Arquivo carregado",
         description: `${file.name} foi carregado com sucesso. Clique em "Converter para XLSX" para baixar o arquivo convertido.`,
