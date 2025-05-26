@@ -12,7 +12,6 @@ import {
 } from "@/utils/fileProcessing";
 import { TxtToXlsxTab } from "@/components/TxtToXlsxTab";
 import { XlsxToTxtTab } from "@/components/XlsxToTxtTab";
-import CompareTxtTab from "@/components/CompareTxtTab";
 
 const FileConverterTabs = () => {
   const { toast } = useToast();
@@ -159,7 +158,7 @@ const FileConverterTabs = () => {
 
   return (
     <Tabs defaultValue="txt-to-xlsx" className="w-full">
-      <TabsList className="grid w-full grid-cols-3 mb-8">
+      <TabsList className="grid w-full grid-cols-2 mb-8">
         <TabsTrigger value="txt-to-xlsx" className="text-lg py-3">
           <FileText className="mr-2 h-4 w-4" />
           TXT para XLSX
@@ -168,10 +167,7 @@ const FileConverterTabs = () => {
           <FileSpreadsheet className="mr-2 h-4 w-4" />
           XLSX para TXT
         </TabsTrigger>
-        <TabsTrigger value="compare-txt" className="text-lg py-3">
-          <FileDiff className="mr-2 h-4 w-4" />
-          Comparar TXT
-        </TabsTrigger>
+ 
       </TabsList>
       
       <TabsContent value="txt-to-xlsx">
@@ -194,12 +190,7 @@ const FileConverterTabs = () => {
         />
       </TabsContent>
       
-      <TabsContent value="compare-txt">
-        <CompareTxtTab 
-          isLoading={isLoading.compare}
-          setIsLoading={(loading) => setIsLoading(prev => ({...prev, compare: loading}))}
-        />
-      </TabsContent>
+ 
     </Tabs>
   );
 };

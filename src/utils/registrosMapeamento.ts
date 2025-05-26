@@ -255,39 +255,39 @@ export const registrosMapeamento: RegistroMapeamento[] = [
   }
 ];
 
-// Function to add or update record mappings
-export const atualizarMapeamentos = (novosMapeamentos: Record<string, string[]>) => {
-  // For each new mapping
-  Object.entries(novosMapeamentos).forEach(([codigo, cabecalho]) => {
-    // Find if the record already exists
-    const indiceExistente = registrosMapeamento.findIndex(reg => reg.codigo === codigo);
+// // Function to add or update record mappings
+// export const atualizarMapeamentos = (novosMapeamentos: Record<string, string[]>) => {
+//   // For each new mapping
+//   Object.entries(novosMapeamentos).forEach(([codigo, cabecalho]) => {
+//     // Find if the record already exists
+//     const indiceExistente = registrosMapeamento.findIndex(reg => reg.codigo === codigo);
     
-    if (indiceExistente >= 0) {
-      // Update existing record
-      registrosMapeamento[indiceExistente].cabecalho = cabecalho;
-    } else {
-      // Add new record
-      registrosMapeamento.push({
-        codigo,
-        descricao: `Registro ${codigo}`,
-        cabecalho
-      });
-    }
-  });
-};
+//     if (indiceExistente >= 0) {
+//       // Update existing record
+//       registrosMapeamento[indiceExistente].cabecalho = cabecalho;
+//     } else {
+//       // Add new record
+//       registrosMapeamento.push({
+//         codigo,
+//         descricao: `Registro ${codigo}`,
+//         cabecalho
+//       });
+//     }
+//   });
+// };
 
 // Update with the new mappings
-atualizarMapeamentos({
-  "C800": ["REG", "UF", "VL_BC_ICMS_ST", "VL_ICMS_ST", "VL_RED_BC", "COD_OBS"],
-  "C850": ["REG", "CST_ICMS", "CFOP", "ALIQ_ICMS", "VL_OPR", "VL_BC_ICMS", "VL_ICMS", "COD_OBS"],
-  "C990": ["REG", "QTD_LIN_C"],
-  "D990": ["REG", "QTD_LIN_D"],
-  "E990": ["REG", "QTD_LIN_E"],
-  "G990": ["REG", "QTD_LIN_G"],
-  "H990": ["REG", "QTD_LIN_H"],
-  "K990": ["REG", "QTD_LIN_K", "IND_MOV"],
-  "1990": ["REG", "QTD_LIN_1", "IND_MOV", "REG_BLC", "QTD_REG_BLC"]
-});
+// atualizarMapeamentos({
+//   "C800": ["REG", "UF", "VL_BC_ICMS_ST", "VL_ICMS_ST", "VL_RED_BC", "COD_OBS"],
+//   "C850": ["REG", "CST_ICMS", "CFOP", "ALIQ_ICMS", "VL_OPR", "VL_BC_ICMS", "VL_ICMS", "COD_OBS"],
+//   "C990": ["REG", "QTD_LIN_C"],
+//   "D990": ["REG", "QTD_LIN_D"],
+//   "E990": ["REG", "QTD_LIN_E"],
+//   "G990": ["REG", "QTD_LIN_G"],
+//   "H990": ["REG", "QTD_LIN_H"],
+//   "K990": ["REG", "QTD_LIN_K", "IND_MOV"],
+//   "1990": ["REG", "QTD_LIN_1", "IND_MOV", "REG_BLC", "QTD_REG_BLC"]
+// });
 
 // Função para obter o mapeamento de um registro pelo código
 export const obterMapeamentoPorCodigo = (codigo: string): RegistroMapeamento | undefined => {

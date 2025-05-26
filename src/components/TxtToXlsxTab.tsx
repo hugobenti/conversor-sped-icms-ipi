@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Download, RefreshCw, FileText, Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { agruparPorRegistro } from "@/utils/fileProcessing";
+// import { agruparPorRegistro } from "@/utils/fileProcessing";
 import { useState, useEffect } from "react";
 import { obterMapeamentoPorCodigo } from "@/utils/registrosMapeamento";
 
@@ -35,30 +35,30 @@ export const TxtToXlsxTab = ({
 }: TxtToXlsxTabProps) => {
   const [resumoRegistros, setResumoRegistros] = useState<ResumoRegistro[]>([]);
 
-  // Atualizar o resumo de registros quando os dados mudam
-  useEffect(() => {
-    if (parsedData.length > 0) {
-      const grupos = agruparPorRegistro(parsedData);
+  // // Atualizar o resumo de registros quando os dados mudam
+  // useEffect(() => {
+  //   if (parsedData.length > 0) {
+  //     const grupos = agruparPorRegistro(parsedData);
       
-      const resumo: ResumoRegistro[] = Object.entries(grupos).map(([codigo, linhas]) => {
-        const mapeamento = obterMapeamentoPorCodigo(codigo);
+  //     const resumo: ResumoRegistro[] = Object.entries(grupos).map(([codigo, linhas]) => {
+  //       const mapeamento = obterMapeamentoPorCodigo(codigo);
         
-        return {
-          codigo,
-          descricao: mapeamento?.descricao || 'Registro desconhecido',
-          contagem: linhas.length,
-          encontrado: !!mapeamento
-        };
-      });
+  //       return {
+  //         codigo,
+  //         descricao: mapeamento?.descricao || 'Registro desconhecido',
+  //         contagem: linhas.length,
+  //         encontrado: !!mapeamento
+  //       };
+  //     });
       
-      // Ordenar por código para exibição
-      resumo.sort((a, b) => a.codigo.localeCompare(b.codigo));
+  //     // Ordenar por código para exibição
+  //     resumo.sort((a, b) => a.codigo.localeCompare(b.codigo));
       
-      setResumoRegistros(resumo);
-    } else {
-      setResumoRegistros([]);
-    }
-  }, [parsedData]);
+  //     setResumoRegistros(resumo);
+  //   } else {
+  //     setResumoRegistros([]);
+  //   }
+  // }, [parsedData]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
