@@ -13,7 +13,11 @@ export const parseTxtToArray = (text: string): string[][] => {
     const safeLine = line.startsWith('|') ? line : `|${line}`;
     const finalLine = safeLine.endsWith('|') ? safeLine : `${safeLine}|`;
 
-    const fields = finalLine.split('|').filter(f => f !== '');
+    // Corrige campos vazios || → | | (preserva coluna em branco)
+    const fixedLine = finalLine.replaceAll('||', '| |');
+
+    const fields = fixedLine.split('|').slice(1, -1); // remove pipe inicial e final
+
     return fields;
   });
 };
@@ -137,7 +141,9 @@ export const parseXlsxToArray = async (file: File): Promise<string[][]> => {
 
 /* ---------- ARRAY → TXT ---------- */
 export const convertArrayToTxt = (data: string[][]): string => {
-  return data.map(row => `|${row.map(col => col.trim()).join('|')}|`).join('\n');
+  return data
+    .map(row => `|${row.map(col => (col.trim() === '' ? ' ' : col.trim())).join('|')}|`)
+    .join('\n');
 };
 
 /* ---------- CRIAR DOWNLOAD ---------- */
