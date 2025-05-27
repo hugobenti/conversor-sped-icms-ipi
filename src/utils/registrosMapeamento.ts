@@ -11,7 +11,23 @@ export const registrosMapeamento: RegistroMapeamento[] = [
   {
     codigo: "0000",
     descricao: "Abertura do Arquivo Digital e Identificação da entidade",
-    cabecalho: ["REG", "CNPJ", "COD_FIN", "COD_MUN", "COD_VER", "CPF", "DT_FIN", "DT_INI", "IE", "NOME", "UF"]
+    cabecalho: [
+      "REG",
+      "Código da versão do leiaute",
+      "Código da finalidade",
+      "Data inicial",
+      "Data final",
+      "Nome empresarial",
+      "CNPJ",
+      "CPF",
+      "UF",
+      "Inscrição Estadual",
+      "Código do município",
+      "Inscrição Municipal",
+      "Inscrição na SUFRAMA",
+      "Perfil do arquivo fiscal",
+      "Tipo de atividade"
+    ]
   },
   {
     codigo: "0001",
@@ -31,7 +47,7 @@ export const registrosMapeamento: RegistroMapeamento[] = [
   {
     codigo: "0100",
     descricao: "Dados do Contabilista",
-    cabecalho: ["REG", "BAIRRO", "CEP", "CNPJ", "COD_MU", "COMPL", "CPF", "CRC", "EMAIL", "END", "FAX", "FONE", "NOME", "NUM"]
+    cabecalho: ["REG","IND_MOV","REG","NOME","CPF","CRC","CNPJ","CEP","END","NUM","COMPL","BAIRRO","FONE","FAX","EMAIL","COD_MUN"]
   },
   {
     codigo: "0150",
