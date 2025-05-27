@@ -13,8 +13,8 @@ export const parseTxtToArray = (text: string): string[][] => {
     const safeLine = line.startsWith('|') ? line : `|${line}`;
     const finalLine = safeLine.endsWith('|') ? safeLine : `${safeLine}|`;
 
-    // Corrige campos vazios || → | | (preserva coluna em branco)
-    const fixedLine = finalLine.replaceAll('||', '| |');
+    // Corrige campos vazios || → | |
+    const fixedLine = finalLine.replace(/\|\|/g, '| |');
 
     const fields = fixedLine.split('|').slice(1, -1); // remove pipe inicial e final
 
@@ -112,17 +112,28 @@ export const parseXlsxToArray = async (file: File): Promise<string[][]> => {
           const sheetData = XLSX.utils.sheet_to_json(worksheet, {
             header: 1,
             raw: false,
+            blankrows: true,
           }) as string[][];
 
           if (sheetData.length > 0) {
-            const primeiraLinha = sheetData[0];
+            const maxLength = Math.max(...sheetData.map(r => r.length));
+
+            const sheetFixed = sheetData.map(r => {
+              const newRow = [...r];
+              while (newRow.length < maxLength) {
+                newRow.push('');
+              }
+              return newRow;
+            });
+
+            const primeiraLinha = sheetFixed[0];
 
             const isHeader = /^REG$/i.test(String(primeiraLinha[0] ?? '').trim());
 
             if (isHeader) {
-              allData = [...allData, ...sheetData.slice(1)];
+              allData = [...allData, ...sheetFixed.slice(1)];
             } else {
-              allData = [...allData, ...sheetData];
+              allData = [...allData, ...sheetFixed];
             }
           }
         });
@@ -142,9 +153,13 @@ export const parseXlsxToArray = async (file: File): Promise<string[][]> => {
 /* ---------- ARRAY → TXT ---------- */
 export const convertArrayToTxt = (data: string[][]): string => {
   return data
-    .map(row => `|${row.map(col => (col.trim() === '' ? ' ' : col.trim())).join('|')}|`)
+    .map(row => {
+      const linha = row.map(col => col.trim()).join('|');
+      return `|${linha}|`;
+    })
     .join('\n');
 };
+
 
 /* ---------- CRIAR DOWNLOAD ---------- */
 export const createDownloadableFile = (content: Blob | string, fileName: string): void => {
