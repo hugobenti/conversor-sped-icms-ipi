@@ -5,6 +5,18 @@ import { obterMapeamentoPorCodigo } from './registrosMapeamento';
 const sanitizeSheetName = (name: string) =>
   name.replace(/[\[\]:*?/\\]/g, '').substring(0, 31);
 
+/* ---------- DETERMINA O BLOCO ---------- */
+const obterNomeDaAba = (registro: string): string => {
+  if (registro.startsWith('0')) return 'Abertura';
+  if (registro.startsWith('9')) return 'Encerramento';
+  if (registro.startsWith('1')) return 'Bloco 1';
+
+  const primeiraLetra = registro.charAt(0).toUpperCase();
+  if (/[A-Z]/.test(primeiraLetra)) return `Bloco ${primeiraLetra}`;
+
+  return 'Outros';
+};
+
 /* ---------- PARSE TXT → ARRAY ---------- */
 export const parseTxtToArray = (text: string): string[][] => {
   const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
@@ -13,78 +25,59 @@ export const parseTxtToArray = (text: string): string[][] => {
     const safeLine = line.startsWith('|') ? line : `|${line}`;
     const finalLine = safeLine.endsWith('|') ? safeLine : `${safeLine}|`;
 
-    // Corrige campos vazios || → | |
     const fixedLine = finalLine.replace(/\|\|/g, '| |');
-
-    const fields = fixedLine.split('|').slice(1, -1); // remove pipe inicial e final
+    const fields = fixedLine.split('|').slice(1, -1);
 
     return fields;
   });
 };
 
-/* ---------- AGRUPAR COM ORDEM ---------- */
-interface AgrupamentoPorRegistro {
-  ordem: string[];
-  grupos: Record<string, string[][]>;
-}
+/* ---------- PREENCHER COM __EMPTY__ ---------- */
+const getMaxColumns = (rows: string[][]): number =>
+  Math.max(...rows.map(r => r.length));
 
-export const agruparPorRegistroComOrdem = (data: string[][]): AgrupamentoPorRegistro => {
-  const grupos: Record<string, string[][]> = {};
-  const ordem: string[] = [];
+const prepareSheetWithEmptyFlag = (rows: string[][]): string[][] => {
+  const maxColumns = getMaxColumns(rows);
 
-  data.forEach(row => {
-    if (row.length > 0) {
-      const tipoRegistro = row[0];
-
-      if (!grupos[tipoRegistro]) {
-        grupos[tipoRegistro] = [];
-        ordem.push(tipoRegistro);
-      }
-
-      grupos[tipoRegistro].push(row);
+  return rows.map(row => {
+    const padded = [...row];
+    while (padded.length < maxColumns) {
+      padded.push('__EMPTY__');
     }
+    return padded;
   });
-
-  return { grupos, ordem };
 };
 
 /* ---------- CONVERTER ARRAY → XLSX ---------- */
 export const convertArrayToXlsx = (data: string[][]): Blob => {
-  const { grupos, ordem } = agruparPorRegistroComOrdem(data);
-
   const wb = XLSX.utils.book_new();
+  const grupos: Record<string, string[][]> = {};
 
-  ordem.forEach(tipoRegistro => {
-    const linhas = grupos[tipoRegistro];
-    const mapeamento = obterMapeamentoPorCodigo(tipoRegistro);
+  data.forEach(row => {
+    const registro = row[0]?.trim();
+    if (!registro) return;
 
-    let dadosComCabecalho: string[][] = [...linhas];
+    const nomeAba = obterNomeDaAba(registro);
+    if (!grupos[nomeAba]) grupos[nomeAba] = [];
+    grupos[nomeAba].push(row);
+  });
 
-    if (mapeamento && mapeamento.cabecalho.length > 0) {
-      dadosComCabecalho = [mapeamento.cabecalho, ...linhas];
-    }
+  Object.entries(grupos).forEach(([nomeAba, linhas]) => {
+    const dadosComEmpty = prepareSheetWithEmptyFlag(linhas);
 
-    const ws = XLSX.utils.aoa_to_sheet(dadosComCabecalho);
+    const ws = XLSX.utils.aoa_to_sheet(dadosComEmpty);
 
-    // Forçar tudo como texto
     Object.keys(ws).forEach(cell => {
       if (cell.startsWith('!')) return;
       ws[cell].z = '@';
       ws[cell].t = 's';
     });
 
-    const nomeAba = mapeamento
-      ? sanitizeSheetName(`${tipoRegistro} - ${mapeamento.descricao.substring(0, 20)}`)
-      : `Reg ${tipoRegistro}`;
-
-    try {
-      XLSX.utils.book_append_sheet(wb, ws, nomeAba);
-    } catch {
-      XLSX.utils.book_append_sheet(wb, ws, `Reg ${tipoRegistro}`);
-    }
+    XLSX.utils.book_append_sheet(wb, ws, sanitizeSheetName(nomeAba));
   });
 
   const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+
   return new Blob([excelBuffer], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   });
@@ -121,20 +114,12 @@ export const parseXlsxToArray = async (file: File): Promise<string[][]> => {
             const sheetFixed = sheetData.map(r => {
               const newRow = [...r];
               while (newRow.length < maxLength) {
-                newRow.push('');
+                newRow.push('__EMPTY__');
               }
               return newRow;
             });
 
-            const primeiraLinha = sheetFixed[0];
-
-            const isHeader = /^REG$/i.test(String(primeiraLinha[0] ?? '').trim());
-
-            if (isHeader) {
-              allData = [...allData, ...sheetFixed.slice(1)];
-            } else {
-              allData = [...allData, ...sheetFixed];
-            }
+            allData = [...allData, ...sheetFixed];
           }
         });
 
@@ -150,16 +135,18 @@ export const parseXlsxToArray = async (file: File): Promise<string[][]> => {
   });
 };
 
-/* ---------- ARRAY → TXT ---------- */
+/* ---------- ARRAY → TXT (USANDO A FLAG __EMPTY__) ---------- */
 export const convertArrayToTxt = (data: string[][]): string => {
   return data
     .map(row => {
-      const linha = row.map(col => col.trim()).join('|');
-      return `|${linha}|`;
+      const linhaFiltrada = row.filter(col => col !== '__EMPTY__');
+      const linha = linhaFiltrada
+        .map(col => (col.trim() === '' ? ' ' : col.trim()))
+        .join('|');
+      return `|${linha}|`.replace(/\| \|/g, '||');
     })
     .join('\n');
 };
-
 
 /* ---------- CRIAR DOWNLOAD ---------- */
 export const createDownloadableFile = (content: Blob | string, fileName: string): void => {
