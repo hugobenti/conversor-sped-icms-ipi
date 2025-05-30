@@ -137,16 +137,29 @@ export const parseXlsxToArray = async (file: File): Promise<string[][]> => {
 
 /* ---------- ARRAY → TXT (USANDO A FLAG __EMPTY__) ---------- */
 export const convertArrayToTxt = (data: string[][]): string => {
-  return data
-    .map(row => {
-      const linhaFiltrada = row.filter(col => col !== '__EMPTY__');
-      const linha = linhaFiltrada
-        .map(col => (col.trim() === '' ? ' ' : col.trim()))
-        .join('|');
-      return `|${linha}|`.replace(/\| \|/g, '||');
-    })
-    .join('\n');
+  const linhas = data.map(row => {
+    const linhaFiltrada = row.filter(col => col !== '__EMPTY__');
+    let linha = linhaFiltrada
+      .map(col => (col.trim() === '' ? '' : col.trim())) // <<< NÃO colocar espaço! apenas ''
+      .join('|');
+
+    linha = `|${linha}|`;
+
+    // Substituição 1: " | " → " "
+    linha = linha.replace(/ \| /g, ' ');
+
+    // Substituição 2: "x |" → "x|"
+    linha = linha.replace(/([A-Za-z0-9]) \|/g, '$1|');
+
+    // Substituição 3: garantir que múltiplos vazios não causem " | |"
+    linha = linha.replace(/\|\s*\|/g, '||');
+
+    return linha;
+  });
+
+  return linhas.join('\n') + '\n'; // adiciona linha vazia no final
 };
+
 
 /* ---------- CRIAR DOWNLOAD ---------- */
 export const createDownloadableFile = (content: Blob | string, fileName: string): void => {
