@@ -39,13 +39,11 @@ const getMaxColumns = (rows: string[][]): number =>
 const prepareSheetWithEmptyFlag = (rows: string[][]): string[][] => {
   const maxColumns = getMaxColumns(rows);
 
-  return rows.map(row => {
-    const padded = [...row];
-    while (padded.length < maxColumns) {
-      padded.push('__EMPTY__');
-    }
-    return padded;
-  });
+  return rows.map(row =>
+    row.length < maxColumns
+      ? row.concat(Array(maxColumns - row.length).fill('__EMPTY__'))
+      : row
+  );
 };
 
 /* ---------- CONVERTER ARRAY → XLSX ---------- */
@@ -140,26 +138,22 @@ export const convertArrayToTxt = (data: string[][]): string => {
   const linhas = data.map(row => {
     const linhaFiltrada = row.filter(col => col !== '__EMPTY__');
     let linha = linhaFiltrada
-      .map(col => (col.trim() === '' ? '' : col.trim())) // <<< NÃO colocar espaço! apenas ''
+      .map(col => (col.trim() === '' ? '' : col.trim()))
       .join('|');
 
     linha = `|${linha}|`;
 
-    // Substituição 1: " | " → " "
-    linha = linha.replace(/ \| /g, ' ');
-
-    // Substituição 2: "x |" → "x|"
+    // Substituição: "x |" → "x|", onde x é letra ou número
     linha = linha.replace(/([A-Za-z0-9]) \|/g, '$1|');
 
-    // Substituição 3: garantir que múltiplos vazios não causem " | |"
+    // Garantir que colunas vazias fiquem corretas
     linha = linha.replace(/\|\s*\|/g, '||');
 
     return linha;
   });
 
-  return linhas.join('\n') + '\n'; // adiciona linha vazia no final
+  return linhas.join('\n') + '\n';
 };
-
 
 /* ---------- CRIAR DOWNLOAD ---------- */
 export const createDownloadableFile = (content: Blob | string, fileName: string): void => {

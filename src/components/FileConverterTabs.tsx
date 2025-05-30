@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, FileSpreadsheet, FileDiff } from "lucide-react";
+import { FileText, FileSpreadsheet } from "lucide-react";
 import { 
   parseTxtToArray, 
   convertArrayToXlsx, 
@@ -12,6 +11,7 @@ import {
 } from "@/utils/fileProcessing";
 import { TxtToXlsxTab } from "@/components/TxtToXlsxTab";
 import { XlsxToTxtTab } from "@/components/XlsxToTxtTab";
+import { listaExcecoes } from "@/utils/excecoes"; // ADICIONADO
 
 const FileConverterTabs = () => {
   const { toast } = useToast();
@@ -23,6 +23,10 @@ const FileConverterTabs = () => {
     xlsx: false,
     compare: false
   });
+
+  // Estado das exceções ativas
+  const [excecoesAtivasIds, setExcecoesAtivasIds] = useState<string[]>([]);
+  const excecoesAtivas = listaExcecoes.filter(ex => excecoesAtivasIds.includes(ex.id));
 
   // Handle TXT to XLSX conversion
   const handleTxtToXlsx = async () => {
@@ -43,10 +47,37 @@ const FileConverterTabs = () => {
     
     try {
       // Read the TXT file
-      const text = await readFileAsText(txtFile);
-      
+      let text = await readFileAsText(txtFile);
+
+      // Aplica exceções de LINHA
+      excecoesAtivas.forEach(ex => {
+        if (ex.aplicaEm === 'linha') {
+          text = ex.aplicar({ tipo: 'linha', texto: text });
+        }
+      });
+
       // Parse TXT content into array
-      const data = parseTxtToArray(text);
+      let data = parseTxtToArray(text);
+
+      // Aplica exceções de CAMPO
+      data = data.map(row => {
+        const registro = row[0]?.trim() ?? '';
+        return row.map((valor, index) => {
+          let novoValor = valor;
+          excecoesAtivas.forEach(ex => {
+            if (ex.aplicaEm === 'campo' && ex.registros?.includes(registro)) {
+              novoValor = ex.aplicar({
+                tipo: 'campo',
+                registro,
+                colunaIndex: index,
+                valorAtual: novoValor
+              });
+            }
+          });
+          return novoValor;
+        });
+      });
+
       setParsedData(data);
       
       // Convert to XLSX
@@ -74,7 +105,7 @@ const FileConverterTabs = () => {
     }
   };
 
-  // Handle XLSX to TXT conversion
+  // Handle XLSX to TXT conversion (SEM exceções por enquanto — se quiser posso adaptar depois também)
   const handleXlsxToTxt = async () => {
     if (!xlsxFile) {
       toast({
@@ -138,8 +169,37 @@ const FileConverterTabs = () => {
         description: "Lendo dados do arquivo, por favor aguarde...",
       });
       
-      const text = await readFileAsText(file);
-      const data = parseTxtToArray(text);
+      let text = await readFileAsText(file);
+
+      // Aplica exceções de LINHA no preview
+      excecoesAtivas.forEach(ex => {
+        if (ex.aplicaEm === 'linha') {
+          text = ex.aplicar({ tipo: 'linha', texto: text });
+        }
+      });
+
+      // Parse para array
+      let data = parseTxtToArray(text);
+
+      // Aplica exceções de CAMPO no preview
+      data = data.map(row => {
+        const registro = row[0]?.trim() ?? '';
+        return row.map((valor, index) => {
+          let novoValor = valor;
+          excecoesAtivas.forEach(ex => {
+            if (ex.aplicaEm === 'campo' && ex.registros?.includes(registro)) {
+              novoValor = ex.aplicar({
+                tipo: 'campo',
+                registro,
+                colunaIndex: index,
+                valorAtual: novoValor
+              });
+            }
+          });
+          return novoValor;
+        });
+      });
+
       setParsedData(data);
       
       toast({
@@ -157,41 +217,63 @@ const FileConverterTabs = () => {
   };
 
   return (
-    <Tabs defaultValue="txt-to-xlsx" className="w-full">
-      <TabsList className="grid w-full grid-cols-2 mb-8">
-        <TabsTrigger value="txt-to-xlsx" className="text-lg py-3">
-          <FileText className="mr-2 h-4 w-4" />
-          TXT para XLSX
-        </TabsTrigger>
-        <TabsTrigger value="xlsx-to-txt" className="text-lg py-3">
-          <FileSpreadsheet className="mr-2 h-4 w-4" />
-          XLSX para TXT
-        </TabsTrigger>
- 
-      </TabsList>
-      
-      <TabsContent value="txt-to-xlsx">
-        <TxtToXlsxTab
-          txtFile={txtFile}
-          setTxtFile={setTxtFile}
-          parsedData={parsedData}
-          isLoading={isLoading.txt}
-          onFileSelect={handlePreviewTxtFile}
-          onConvert={handleTxtToXlsx}
-        />
-      </TabsContent>
-      
-      <TabsContent value="xlsx-to-txt">
-        <XlsxToTxtTab
-          xlsxFile={xlsxFile}
-          setXlsxFile={setXlsxFile}
-          isLoading={isLoading.xlsx}
-          onConvert={handleXlsxToTxt}
-        />
-      </TabsContent>
-      
- 
-    </Tabs>
+    <>
+      {/* Painel de exceções */}
+      <div className="mb-6">
+        <h3 className="font-bold mb-2">Tratamentos de exceção:</h3>
+        {listaExcecoes.map(ex => (
+          <label key={ex.id} className="flex items-center mb-1">
+            <input
+              type="checkbox"
+              checked={excecoesAtivasIds.includes(ex.id)}
+              onChange={(e) => {
+                setExcecoesAtivasIds(prev =>
+                  e.target.checked
+                    ? [...prev, ex.id]
+                    : prev.filter(id => id !== ex.id)
+                );
+              }}
+              className="mr-2"
+            />
+            {ex.nome}
+          </label>
+        ))}
+      </div>
+
+      {/* Tabs */}
+      <Tabs defaultValue="txt-to-xlsx" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-8">
+          <TabsTrigger value="txt-to-xlsx" className="text-lg py-3">
+            <FileText className="mr-2 h-4 w-4" />
+            TXT para XLSX
+          </TabsTrigger>
+          <TabsTrigger value="xlsx-to-txt" className="text-lg py-3">
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
+            XLSX para TXT
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="txt-to-xlsx">
+          <TxtToXlsxTab
+            txtFile={txtFile}
+            setTxtFile={setTxtFile}
+            parsedData={parsedData}
+            isLoading={isLoading.txt}
+            onFileSelect={handlePreviewTxtFile}
+            onConvert={handleTxtToXlsx}
+          />
+        </TabsContent>
+        
+        <TabsContent value="xlsx-to-txt">
+          <XlsxToTxtTab
+            xlsxFile={xlsxFile}
+            setXlsxFile={setXlsxFile}
+            isLoading={isLoading.xlsx}
+            onConvert={handleXlsxToTxt}
+          />
+        </TabsContent>
+      </Tabs>
+    </>
   );
 };
 
