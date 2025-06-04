@@ -1,218 +1,174 @@
+"use client";
+
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { useToast } from "../hooks/use-toast";
 import { FileText, FileSpreadsheet } from "lucide-react";
-import { 
-  parseTxtToArray, 
-  convertArrayToXlsx, 
-  parseXlsxToArray, 
-  convertArrayToTxt, 
-  createDownloadableFile 
-} from "@/utils/fileProcessing";
-import { TxtToXlsxTab } from "@/components/TxtToXlsxTab";
-import { XlsxToTxtTab } from "@/components/XlsxToTxtTab";
-import { listaExcecoes } from "@/utils/excecoes"; // ADICIONADO
+
+import {
+  parseXlsxToArray,
+  convertArrayToTxt,
+  createDownloadableFile,
+  parseTxtToArray,
+} from "../utils/fileProcessing"; // funções de cliente
+import { listaExcecoes } from "../utils/excecoes";
+import { TxtToXlsxTab } from "./TxtToXlsxTab";
+import { XlsxToTxtTab } from "./XlsxToTxtTab";
 
 const FileConverterTabs = () => {
   const { toast } = useToast();
   const [txtFile, setTxtFile] = useState<File | null>(null);
   const [xlsxFile, setXlsxFile] = useState<File | null>(null);
   const [parsedData, setParsedData] = useState<string[][]>([]);
-  const [isLoading, setIsLoading] = useState<{txt: boolean, xlsx: boolean, compare: boolean}>({
-    txt: false, 
+  const [isLoading, setIsLoading] = useState<{ txt: boolean; xlsx: boolean }>({
+    txt: false,
     xlsx: false,
-    compare: false
   });
 
-  // Estado das exceções ativas
   const [excecoesAtivasIds, setExcecoesAtivasIds] = useState<string[]>([]);
-  const excecoesAtivas = listaExcecoes.filter(ex => excecoesAtivasIds.includes(ex.id));
+  const excecoesAtivas = listaExcecoes.filter((ex) =>
+    excecoesAtivasIds.includes(ex.id)
+  );
 
-  // Handle TXT to XLSX conversion
-  const handleTxtToXlsx = async () => {
-    if (!txtFile) {
-      toast({
-        title: "Arquivo não selecionado",
-        description: "Por favor, selecione um arquivo TXT para converter.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsLoading(prev => ({...prev, txt: true}));
-    toast({
-      title: "Processando arquivo",
-      description: "Seu arquivo está sendo convertido, aguarde um momento."
-    });
-    
-    try {
-      // Read the TXT file
-      let text = await readFileAsText(txtFile);
-
-      // Aplica exceções de LINHA
-      excecoesAtivas.forEach(ex => {
-        if (ex.aplicaEm === 'linha') {
-          text = ex.aplicar({ tipo: 'linha', texto: text });
-        }
-      });
-
-      // Parse TXT content into array
-      let data = parseTxtToArray(text);
-
-      // Aplica exceções de CAMPO
-      data = data.map(row => {
-        const registro = row[0]?.trim() ?? '';
-        return row.map((valor, index) => {
-          let novoValor = valor;
-          excecoesAtivas.forEach(ex => {
-            if (ex.aplicaEm === 'campo' && ex.registros?.includes(registro)) {
-              novoValor = ex.aplicar({
-                tipo: 'campo',
-                registro,
-                colunaIndex: index,
-                valorAtual: novoValor
-              });
-            }
-          });
-          return novoValor;
-        });
-      });
-
-      setParsedData(data);
-      
-      // Convert to XLSX
-      const xlsxBlob = convertArrayToXlsx(data);
-      
-      // Download the XLSX file
-      createDownloadableFile(
-        xlsxBlob, 
-        txtFile.name.replace(/\.[^/.]+$/, "") + ".xlsx"
-      );
-      
-      toast({
-        title: "Conversão concluída",
-        description: "Arquivo XLSX gerado com sucesso! O download deve começar automaticamente.",
-      });
-    } catch (error) {
-      console.error("Error converting TXT to XLSX:", error);
-      toast({
-        title: "Erro na conversão",
-        description: "Ocorreu um erro ao converter o arquivo. Verifique se o formato é válido.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(prev => ({...prev, txt: false}));
-    }
-  };
-
-  // Handle XLSX to TXT conversion (SEM exceções por enquanto — se quiser posso adaptar depois também)
-  const handleXlsxToTxt = async () => {
-    if (!xlsxFile) {
-      toast({
-        title: "Arquivo não selecionado",
-        description: "Por favor, selecione um arquivo XLSX para converter.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsLoading(prev => ({...prev, xlsx: true}));
-    toast({
-      title: "Processando arquivo",
-      description: "Seu arquivo está sendo convertido, aguarde um momento."
-    });
-    
-    try {
-      // Parse XLSX to array
-      const data = await parseXlsxToArray(xlsxFile);
-      
-      // Convert array to TXT format
-      const txtContent = convertArrayToTxt(data);
-      
-      // Download the TXT file
-      createDownloadableFile(
-        txtContent, 
-        xlsxFile.name.replace(/\.[^/.]+$/, "") + ".txt"
-      );
-      
-      toast({
-        title: "Conversão concluída",
-        description: "Arquivo TXT gerado com sucesso! O download deve começar automaticamente.",
-      });
-    } catch (error) {
-      console.error("Error converting XLSX to TXT:", error);
-      toast({
-        title: "Erro na conversão",
-        description: "Ocorreu um erro ao converter o arquivo. Verifique se o formato é válido.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(prev => ({...prev, xlsx: false}));
-    }
-  };
-
-  // Helper function to read file as text
-  const readFileAsText = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
+  const readFileAsText = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = e => resolve(e.target?.result as string);
+      reader.onload = (e) => resolve(e.target?.result as string);
       reader.onerror = reject;
       reader.readAsText(file);
     });
-  };
 
-  // Handler for previewing TXT file
+  // → Preview do TXT
   const handlePreviewTxtFile = async (file: File) => {
     try {
       toast({
         title: "Carregando arquivo",
         description: "Lendo dados do arquivo, por favor aguarde...",
       });
-      
       let text = await readFileAsText(file);
-
-      // Aplica exceções de LINHA no preview
-      excecoesAtivas.forEach(ex => {
-        if (ex.aplicaEm === 'linha') {
-          text = ex.aplicar({ tipo: 'linha', texto: text });
+      excecoesAtivas.forEach((ex) => {
+        if (ex.aplicaEm === "linha") {
+          text = ex.aplicar({ tipo: "linha", texto: text });
         }
       });
-
-      // Parse para array
       let data = parseTxtToArray(text);
-
-      // Aplica exceções de CAMPO no preview
-      data = data.map(row => {
-        const registro = row[0]?.trim() ?? '';
+      data = data.map((row) => {
+        const registro = row[0]?.trim() ?? "";
         return row.map((valor, index) => {
           let novoValor = valor;
-          excecoesAtivas.forEach(ex => {
-            if (ex.aplicaEm === 'campo' && ex.registros?.includes(registro)) {
+          excecoesAtivas.forEach((ex) => {
+            if (ex.aplicaEm === "campo" && ex.registros?.includes(registro)) {
               novoValor = ex.aplicar({
-                tipo: 'campo',
+                tipo: "campo",
                 registro,
                 colunaIndex: index,
-                valorAtual: novoValor
+                valorAtual: novoValor,
               });
             }
           });
           return novoValor;
         });
       });
-
       setParsedData(data);
-      
       toast({
-        title: "Arquivo carregado",
-        description: `${file.name} foi carregado com sucesso. Clique em "Converter para XLSX" para baixar o arquivo convertido.`,
+        title: "Preview gerado",
+        description:
+          `${file.name} carregado. Clique em "Converter para XLSX" quando quiser baixar.`,
       });
     } catch (error) {
-      console.error("Error previewing TXT file:", error);
+      console.error("Erro ao carregar TXT para preview:", error);
       toast({
         title: "Erro ao carregar arquivo",
-        description: "Não foi possível ler o arquivo TXT. Verifique o formato.",
-        variant: "destructive"
+        description: "Não foi possível ler o arquivo TXT.",
+        variant: "destructive",
       });
+    }
+  };
+
+  // → Converter TXT → XLSX via API Next.js
+  const handleTxtToXlsx = async () => {
+    if (!txtFile) {
+      toast({
+        title: "Arquivo não selecionado",
+        description: "Selecione um arquivo TXT antes de converter.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsLoading((p) => ({ ...p, txt: true }));
+    toast({
+      title: "Enviando para servidor",
+      description: "Sua conversão está em andamento. Aguarde...",
+    });
+    try {
+      const formData = new FormData();
+      formData.append("file", txtFile);
+
+      const resp = await fetch("/api/convert", {
+        method: "POST",
+        body: formData,
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+      const blob = await resp.blob();
+      createDownloadableFile(
+        blob,
+        txtFile.name.replace(/\.[^/.]+$/, "") + ".xlsx"
+      );
+      toast({
+        title: "Conversão concluída",
+        description:
+          "Arquivo XLSX gerado com sucesso! O download começa em breve.",
+      });
+    } catch (error) {
+      console.error("Erro na conversão TXT→XLSX:", error);
+      toast({
+        title: "Erro na conversão",
+        description:
+          "Falha ao converter no servidor. Veja o console para mais detalhes.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading((p) => ({ ...p, txt: false }));
+    }
+  };
+
+  // → Converter XLSX → TXT no cliente
+  const handleXlsxToTxt = async () => {
+    if (!xlsxFile) {
+      toast({
+        title: "Arquivo não selecionado",
+        description: "Selecione um arquivo XLSX antes de converter.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsLoading((p) => ({ ...p, xlsx: true }));
+    toast({
+      title: "Processando",
+      description: "Convertendo XLSX para TXT...",
+    });
+    try {
+      const data = await parseXlsxToArray(xlsxFile);
+      const txtContent = convertArrayToTxt(data);
+      createDownloadableFile(
+        txtContent,
+        xlsxFile.name.replace(/\.[^/.]+$/, "") + ".txt"
+      );
+      toast({
+        title: "Conversão concluída",
+        description:
+          "Arquivo TXT gerado com sucesso! O download começa em breve.",
+      });
+    } catch (error) {
+      console.error("Erro ao converter XLSX→TXT:", error);
+      toast({
+        title: "Erro na conversão",
+        description: "Não foi possível converter o arquivo XLSX.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading((p) => ({ ...p, xlsx: false }));
     }
   };
 
@@ -221,16 +177,16 @@ const FileConverterTabs = () => {
       {/* Painel de exceções */}
       <div className="mb-6">
         <h3 className="font-bold mb-2">Tratamentos de exceção:</h3>
-        {listaExcecoes.map(ex => (
+        {listaExcecoes.map((ex) => (
           <label key={ex.id} className="flex items-center mb-1">
             <input
               type="checkbox"
               checked={excecoesAtivasIds.includes(ex.id)}
               onChange={(e) => {
-                setExcecoesAtivasIds(prev =>
+                setExcecoesAtivasIds((prev) =>
                   e.target.checked
                     ? [...prev, ex.id]
-                    : prev.filter(id => id !== ex.id)
+                    : prev.filter((id) => id !== ex.id)
                 );
               }}
               className="mr-2"
@@ -252,7 +208,7 @@ const FileConverterTabs = () => {
             XLSX para TXT
           </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="txt-to-xlsx">
           <TxtToXlsxTab
             txtFile={txtFile}
@@ -263,7 +219,7 @@ const FileConverterTabs = () => {
             onConvert={handleTxtToXlsx}
           />
         </TabsContent>
-        
+
         <TabsContent value="xlsx-to-txt">
           <XlsxToTxtTab
             xlsxFile={xlsxFile}
