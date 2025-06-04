@@ -1,8 +1,8 @@
 
-import FileUploader from "@/components/FileUploader";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import FileUploader from "./FileUploader";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Progress } from "./ui/progress";
 import { Download, RefreshCw } from "lucide-react";
 
 interface XlsxToTxtTabProps {

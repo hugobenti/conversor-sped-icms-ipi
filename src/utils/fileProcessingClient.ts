@@ -1,39 +1,8 @@
 /**
- * Wrapper para instanciar o Web Worker e gerar XLSX no cliente (apenas para arquivos pequenos/preview).
- * Para arquivos grandes, recomendamos usar a rota /api/convert no servidor.
+ * Caso você queira separar logicamente as funções que só rodam no cliente (sem Worker),
+ * crie este arquivo. Você pode importar dele em páginas/componentes.
  */
 
-export function generateXlsxFromTxt(text: string): Promise<Blob> {
-  return new Promise((resolve, reject) => {
-    // O arquivo worker está em src/workers/fileProcessing.worker.ts
-    const worker = new Worker(
-      new URL("../workers/fileProcessing.worker.ts", import.meta.url),
-      { type: "module" }
-    );
-
-    worker.onmessage = (ev: MessageEvent) => {
-      const data = ev.data as { success: boolean; blob?: Blob; error?: string };
-      if (data.success && data.blob instanceof Blob) {
-        resolve(data.blob);
-      } else {
-        reject(new Error(data.error || "Erro desconhecido no Worker"));
-      }
-      worker.terminate();
-    };
-
-    worker.onerror = (ev) => {
-      reject(new Error(`[Worker] Erro: ${ev.message}`));
-      worker.terminate();
-    };
-
-    // Enviamos apenas a string do TXT
-    worker.postMessage(text);
-  });
-}
-
-/**
- * Funções auxiliares de parse e download no cliente
- */
 import * as XLSX from "xlsx";
 
 export async function parseXlsxToArray(file: File): Promise<string[][]> {
@@ -77,7 +46,6 @@ export async function parseXlsxToArray(file: File): Promise<string[][]> {
         reject(err);
       }
     };
-
     reader.onerror = (err) => reject(err);
     reader.readAsArrayBuffer(file);
   });
@@ -86,7 +54,9 @@ export async function parseXlsxToArray(file: File): Promise<string[][]> {
 export function convertArrayToTxt(data: string[][]): string {
   const lines = data.map((row) => {
     const filtered = row.filter((col) => col !== "__EMPTY__");
-    let linha = filtered.map((col) => (col.trim() === "" ? "" : col.trim())).join("|");
+    let linha = filtered
+      .map((col) => (col.trim() === "" ? "" : col.trim()))
+      .join("|");
     linha = `|${linha}|`;
     linha = linha.replace(/([A-Za-z0-9]) \|/g, "$1|");
     linha = linha.replace(/\|\s*\|/g, "||");
