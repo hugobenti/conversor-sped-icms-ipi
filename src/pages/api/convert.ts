@@ -14,6 +14,7 @@ export const config = {
   },
 };
 
+
 // 2) Mesmas funções auxiliares que você já usava:
 //    a) parseTxtToArray (mas agora faremos parse linha a linha em vez de converter tudo de uma vez)
 //    b) sanitizeSheetName
